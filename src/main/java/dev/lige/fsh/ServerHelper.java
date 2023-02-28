@@ -1,6 +1,8 @@
 package dev.lige.fsh;
 
 import com.google.gson.Gson;
+import dev.lige.fsh.data.Config;
+import dev.lige.fsh.fileIO.FileManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -8,58 +10,14 @@ import net.minecraft.util.math.BlockPos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
 
 public class ServerHelper {
     public static MinecraftServer server;
-    public static server_helper_config config;
-    public static final Logger LOGGER = LoggerFactory.getLogger("modid");
+    public static Config config;
+    private static final Logger LOGGER = LoggerFactory.getLogger("modid");
     public static void onServerInit(MinecraftServer server){
         ServerHelper.server = server;
-        ServerHelper.config = new server_helper_config();
-
-        Path dir = Paths.get("./server_helper");
-        Path config_path = Paths.get("./server_helper/config.json");
-        Path data_path = Paths.get("./server_helper/data.json");
-
-        if (!Files.exists(dir)) {
-            LOGGER.info("server_helper folder not found, creating one");
-            try {
-                Files.createDirectory(dir);
-                Files.createFile(config_path);
-                Files.createFile(data_path);
-            } catch (IOException e) {
-                LOGGER.error("Create server_helper folder failed");
-                e.printStackTrace();
-            }
-        }
-        // read config json
-        try{
-            Gson gson = new Gson();
-            Reader reader = Files.newBufferedReader(config_path);
-
-            Map<?, ?> map = gson.fromJson(reader, Map.class);
-
-            LOGGER.info("reading config.json");
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                LOGGER.info("load config:  " + entry.getKey() + "=" + entry.getValue());
-                if ( entry.getKey() == "server_name" ){
-                    config.server_name = (String) entry.getValue();
-                }
-                if(entry.getKey() == "web_site"){
-                    config.web_site = (String) entry.getValue();
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("Read config.json failed, will use default config");
-        }
-        // read data json
-
+        ServerHelper.config = FileManager.loadConfig();
 
     }
 
@@ -103,7 +61,3 @@ public class ServerHelper {
     }
 }
 
-class server_helper_config{
-    public String server_name = "my server";
-    public String web_site = "https://github.com/bobbywyx/server_helper";
-}
