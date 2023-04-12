@@ -1,9 +1,14 @@
 package dev.lige.fsh;
 
 import com.google.gson.Gson;
+import com.mojang.brigadier.CommandDispatcher;
+import dev.lige.fsh.commands.InfoCommand;
 import dev.lige.fsh.data.Config;
 import dev.lige.fsh.fileIO.FileManager;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -11,14 +16,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ServerHelper {
+public class ServerHelper implements ModInitializer {
     public static MinecraftServer server;
     public static Config config;
-    private static final Logger LOGGER = LoggerFactory.getLogger("modid");
+    private static final Logger LOGGER = LoggerFactory.getLogger("server_helper");
+
+    @Override
+    public void onInitialize() {
+        LOGGER.info("server_helper initializing");
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> commandsRegister(dispatcher));
+    }
+    private void commandsRegister(CommandDispatcher<ServerCommandSource> dispatcher) {
+        InfoCommand.register(dispatcher);
+    }
+
+
     public static void onServerInit(MinecraftServer server){
         ServerHelper.server = server;
         ServerHelper.config = FileManager.loadConfig();
-
     }
 
     public static void onPlayerLoggedIn(ServerPlayerEntity player) {

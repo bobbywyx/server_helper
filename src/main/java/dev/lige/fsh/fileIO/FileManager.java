@@ -15,7 +15,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 
 public class FileManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger("modid");
+    private static final Logger LOGGER = LoggerFactory.getLogger("server_helper");
 
     public static void testFolderExist(String path){
         Path path1 = Paths.get(path);
@@ -57,6 +57,7 @@ public class FileManager {
 
             Map<?, ?> map = gson.fromJson(reader, Map.class);
 
+            LOGGER.info("====Server Helper====");
             LOGGER.info("reading config.json");
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 if ( entry.getKey().equals("server_name")){
